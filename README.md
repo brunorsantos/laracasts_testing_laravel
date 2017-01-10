@@ -125,3 +125,48 @@ Em que se pode criar uma nova conexao no arquivo de database do Laravel. (utiliz
 
 No arquivo phpunit.xml, podemos alterar a variavel de ambiente DB_CONNECTION para utilizar a conexao que foi criada no momento.
 
+## Testing Collaborators
+
+Em uma model criada, pode se testar coisas simples como uma atribuicao de nome ou outros colunas(sem acessar diretamente o banco)
+
+```php
+    /** @test */
+    public function a_team_has_a_name()
+    {
+        $team = new Team(['name' => 'Acme']);
+        $this->assertEquals('Acme', $team->name);
+    }
+```
+Este teste contempla a validacao do funcionamento do mass assingment
+
+Para verificar se uma exception é disparada nos testes, utiliza se: $this->setExpectedException('Exception');
+Sendo que abaixo desse trecho até o fim do teste, deve ser disparada uma exceção
+
+```php
+    /** @test */
+    public function a_team_has_a_maximum_size()
+    {
+        $team = factory(Team::class)->create(['size' => 2]);
+        $userOne = factory(User::class)->create();
+        $userTwo = factory(User::class)->create();
+        $team->add($userOne);
+        $team->add($userTwo);
+        $this->assertEquals(2, $team->count());
+        $this->setExpectedException('Exception');
+        $userThree = factory(User::class)->create();
+        $team->add($userThree);
+    }
+```
+
+## Homework Solutions
+
+## Regression Testing
+
+Podem existir bugs(em produção), mesmo quando está se usando TDD. Quando isso ocorrer. Usa se o teste de regressão.
+
+Em que usando TDD, cria-se o caso de teste para o erro ainda nao acertado.
+Depois do teste criado, acerta-se o problema.
+
+## "Liking" a Model With TDD
+
+
