@@ -212,7 +212,44 @@ public function like(){ // funcao que utiliza a relacionamento.
     
     $this->likes()->save($like);
 }
-
 ```
 
+## Test Method Refactoring 
 
+È possivel refatorar o teste criado anteriormente, considerando principalmente que varios testes serão criados na mesma classe de testes, utilizando os mesmos codigos referentes parte de set do código.
+
+
+
+Antes de tudo, pode se criar um metodo signIn na classe TestCase (que é extendida nos testes do php unit)
+
+
+```php
+public function signIn($user = null)
+{
+    if(! $user ){
+        $user = factory(App\User::class)->create();
+    }
+    
+    $this->user = $user;
+    
+    $this->actingAs($this->user);
+}
+```
+
+Em que é verificado se passamos um user como paramentro, caso nao cria um para depois logar com ele
+
+
+Lembrando que para o Phpunit o metodo setUp executa antes de todo metodo, criar uma dessa forma:
+
+```php
+public function signIn($user = null)
+{
+    if(! $user ){
+        $user = factory(App\User::class)->create();
+    }
+    
+    $this->user = $user;
+    
+    $this->actingAs($this->user);
+}
+```
