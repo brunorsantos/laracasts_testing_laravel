@@ -169,4 +169,50 @@ Depois do teste criado, acerta-se o problema.
 
 ## "Liking" a Model With TDD
 
+Neste teste é demostrando um recurso do phpunit no laravel em que é possivel se comportar como um user logado na base. Utilizando $this->actingAs($user);
+
+É possivel também verificar algum registro no banco utilizando $this->seeInDatabase();
+
+Exemplo do teste utilizando:
+
+```php
+/**@test  */
+public function a_user_can_like_a_post()
+{
+    $post = factory(App\Post::class)-create();
+    $user = factory(App\User::class)-create();
+    
+    $this->actingAs($user);
+    
+    $post-like();
+    
+    $this->seeInDatabase('likes',[
+        'user_id' => $user->id,
+        'likeable_id' => $post->id,
+        'likeable_type' => get_class($post)
+    ]); // Verifica no banco
+    
+    $this->assertTrue($post->isLiked()); // Verifica via metodo criado na model
+}
+```
+
+Nesse teste poderia se extrair a criacao de post e do user para um metodo separado. Utilizando user e post como atributos da classe.
+
+Este teste, utiliza relacionamento polimorficos. Ele possui uma tabela de likes, em que chave estrangeira pode ser a chave de varias tabelas, e existe uma coluna que informa qual classe é essa.
+
+Para definir o relacionamento no eloquent(em classe de Post):
+```php
+public function likes()
+{
+    return $this->morphMany(Like::class, 'likeable');
+}
+
+public function like(){ // funcao que utiliza a relacionamento.
+    $like = new Like(['user_id' => auth::id()]);
+    
+    $this->likes()->save($like);
+}
+
+```
+
 
