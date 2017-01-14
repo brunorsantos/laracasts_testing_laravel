@@ -219,28 +219,10 @@ public function like(){ // funcao que utiliza a relacionamento.
 È possivel refatorar o teste criado anteriormente, considerando principalmente que varios testes serão criados na mesma classe de testes, utilizando os mesmos codigos referentes parte de set do código.
 
 
-
 Antes de tudo, pode se criar um metodo signIn na classe TestCase (que é extendida nos testes do php unit)
-
-
-```php
-public function signIn($user = null)
-{
-    if(! $user ){
-        $user = factory(App\User::class)->create();
-    }
-    
-    $this->user = $user;
-    
-    $this->actingAs($this->user);
-}
-```
-
 Em que é verificado se passamos um user como paramentro, caso nao cria um para depois logar com ele
 
 
-Lembrando que para o Phpunit o metodo setUp executa antes de todo metodo, criar uma dessa forma:
-
 ```php
 public function signIn($user = null)
 {
@@ -253,3 +235,69 @@ public function signIn($user = null)
     $this->actingAs($this->user);
 }
 ```
+
+Podemos tambem criar na nossa classe de Post, um metodo de setUp que  cria o post.
+
+Lembrando que para o Phpunit o metodo setUp executa antes de todo metodo
+
+```php
+public function setUp(
+{
+    parernt::setUp();
+    
+    $this->post = factory(App\Post:class)->create();
+    
+    $this->signIn();
+}
+```
+
+Deixando os metodos mais limpos:
+
+
+```php
+/**@test  */
+public function a_user_can_like_a_post()
+{
+    $post-like();
+    
+    $this->seeInDatabase('likes',[
+        'user_id' => $user->id,
+        'likeable_id' => $post->id,
+        'likeable_type' => get_class($post)
+    ]); // Verifica no banco
+    
+    $this->assertTrue($post->isLiked()); // Verifica via metodo criado na model
+}
+```
+
+
+É possivel criar helpers com metodos para teste como 'createPost'.
+Exemplo: Criar arquivo test/helpers/functions.
+
+```php
+<?php
+
+funcion createPost($atributes = [])
+{
+    return factory(App\Post::class)->create($atrributes);
+}
+```
+
+
+Assim podemos chamar o metodo com ou sem array de parametros desejados.
+
+Basa incluir no autoload do composer em autoload-dev o arquivo:
+
+```json
+autoload-dev: {
+    classmap:[
+        tests/TestCase.php
+    ],
+    files: [
+        tests/helpers/function.php
+    ]
+},
+```
+Rodar composer dump-autoload
+
+
